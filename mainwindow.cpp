@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "audiothread.h"
 #include <QDebug>
-
 AudioThread *thread = nullptr;
 
 MainWindow::MainWindow(QWidget *parent)
@@ -17,7 +15,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_audioButton_clicked()
+// 记录音频
+void MainWindow::on_recodeAudioBtn_clicked()
 {
     if (!_audioThread) {
        _audioThread = new AudioThread(this);
@@ -25,34 +24,31 @@ void MainWindow::on_audioButton_clicked()
 
        connect(_audioThread, &AudioThread::finished, [this] () {//线程结束 (lanmbda 表达式 oc 中 block)
           _audioThread = nullptr;// 必须捕获 this 不然无法访问 _audioThread
-          ui->audioButton->setText("开始录音");
+          ui->recodeAudioBtn->setText("开始录音");
        });
        qDebug() << "AudioThread Start";
-       ui->audioButton->setText("结束录音");
+       ui->recodeAudioBtn->setText("结束录音");
     } else {
        _audioThread->requestInterruption();
-       _audioThread = nullptr;
-//       ui->audioButton->setText("开始录音");
     }
 }
 
-/*
-➜  ~ ffmpeg -devices -hide_banner
-Devices:
- D. = Demuxing supported
- .E = Muxing supported
- --
- D  avfoundation    AVFoundation input device
- D  lavfi           Libavfilter virtual input device
-  E sdl,sdl2        SDL2 output device
- D  x11grab         X11 screen capture, using XCB
-*/
-/*
-➜  ~ ffmpeg -f avfoundation -list_devices true  -i dummy -hide_banner
-[AVFoundation indev @ 0x7fa29fe30000] AVFoundation video devices:
-[AVFoundation indev @ 0x7fa29fe30000] [0] FaceTime HD Camera
-[AVFoundation indev @ 0x7fa29fe30000] [1] Capture screen 0
-[AVFoundation indev @ 0x7fa29fe30000] [2] Capture screen 1
-[AVFoundation indev @ 0x7fa29fe30000] AVFoundation audio devices:
-[AVFoundation indev @ 0x7fa29fe30000] [0] Built-in Microphone
-*/
+// 播放音频
+void MainWindow::on_playAudioBtn_clicked()
+{
+    if(!_playAudioThread) {
+        _playAudioThread = new PlayAudioThread(this);
+        _playAudioThread->start();
+
+        connect(_playAudioThread, &PlayAudioThread::finished, [this]() {
+            _playAudioThread = nullptr;
+            ui->playAudioBtn->setText("播发音频");
+        });
+        qDebug()<< "PlayAudioThread Start";
+        ui->playAudioBtn->setText("暂停播放");
+     } else {
+        _playAudioThread->requestInterruption();
+        qDebug()<< "PlayAudioThread end";
+    }
+
+}

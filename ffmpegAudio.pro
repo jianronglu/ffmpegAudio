@@ -11,11 +11,13 @@ CONFIG += c++11
 SOURCES += \
     audiothread.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    playaudiothread.cpp
 
 HEADERS += \
     audiothread.h \
-    mainwindow.h
+    mainwindow.h \
+    playaudiothread.h
 
 FORMS += \
     mainwindow.ui
@@ -27,23 +29,33 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 win32 {
     FFMPEGHOME = ..
+    SDL2_HOME = ..
 }
 
 mac {
+    # FFMPEG HOME
     FFMPEGHOME = /usr/local/Cellar/ffmpeg/4.3.2_1
     # Mac 需要 Info.plist 申请音频视频权限，且 debug 才能运行 （avformat_open_input 会 crash）
     # 项目右键 -> Add New -> General -> Empty File -> Info.plist
     # 指定路径 QMAKE_INFO_PLIST = mac/Info.plist
     # （重启QT才生效）
     QMAKE_INFO_PLIST = mac/Info.plist
+
+    # ADD SDL2 HOME
+    SDL2_HOME = /usr/local/Cellar/sdl2/2.0.14_1
+
 }
 
+# ADD FFMPEG PATH
 INCLUDEPATH += $${FFMPEGHOME}/include
 
-LIBS += -L $${FFMPEGHOME}/lib \
-    -lavdevice \
+LIBS += -L $${FFMPEGHOME}/lib \  # -L：去什么路径查找
+    -lavdevice \ # -l 连接xxx库
     -lavformat \
-    -lavutil
+    -lavutil \
+    -lavcodec
 
-#DISTFILES += \
-#    mac/Info.plist
+# ADD SDL2 PATH
+INCLUDEPATH += $${SDL2_HOME}/include
+LIBS += -L$${SDL2_HOME}/lib \
+    -lSDL2

@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="audioButton">
+   <widget class="QPushButton" name="recodeAudioBtn">
     <property name="geometry">
      <rect>
       <x>170</x>
@@ -25,6 +25,19 @@
     </property>
     <property name="text">
      <string>开始录音</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="playAudioBtn">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>160</y>
+      <width>113</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>打开音频</string>
     </property>
    </widget>
   </widget>

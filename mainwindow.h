@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <audiothread.h>
+#include <playaudiothread.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -17,10 +18,13 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_audioButton_clicked();
+    void on_recodeAudioBtn_clicked();
+
+    void on_playAudioBtn_clicked();
 
 private:
     Ui::MainWindow *ui;
     AudioThread *_audioThread = nullptr;
+    PlayAudioThread *_playAudioThread = nullptr;
 };
 #endif // MAINWINDOW_H
