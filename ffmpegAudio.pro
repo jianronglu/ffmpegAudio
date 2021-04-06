@@ -35,6 +35,7 @@ win32 {
 mac {
     # FFMPEG HOME
     FFMPEGHOME = /usr/local/Cellar/ffmpeg/4.3.2_1
+#    FFMPEGHOME = /usr/local/Cellar/ffmpeg/4.3.2_3 #版本不同路径不同
     # Mac 需要 Info.plist 申请音频视频权限，且 debug 才能运行 （avformat_open_input 会 crash）
     # 项目右键 -> Add New -> General -> Empty File -> Info.plist
     # 指定路径 QMAKE_INFO_PLIST = mac/Info.plist
