@@ -5,6 +5,8 @@
 
 // ffplay -ar 44100 -ac 2 -f s16le Desktop/04_06_16_11_11.pcm  测试读 .pcm 文件
 
+// 查看Mac 设备信息：关于本机->系统报告->音频->设备
+
 extern "C" {
 #include <libavdevice/avdevice.h>
 #include <libavformat/avformat.h>
