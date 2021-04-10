@@ -108,3 +108,4 @@ Devices:
 - Windows： 使用MinGW编译器，需要自己下SDL2
 
 #### 3、
+![](Source/播放pcm音频.png)
