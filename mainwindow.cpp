@@ -42,10 +42,10 @@ void MainWindow::on_playAudioBtn_clicked()
 
         connect(_playAudioThread, &PlayAudioThread::finished, [this]() {
             _playAudioThread = nullptr;
-            ui->playAudioBtn->setText("播发音频");
+            ui->playAudioBtn->setText("播放音乐");
         });
         qDebug()<< "PlayAudioThread Start";
-        ui->playAudioBtn->setText("暂停播放");
+        ui->playAudioBtn->setText("停止播放");
      } else {
         _playAudioThread->requestInterruption();
         qDebug()<< "PlayAudioThread end";

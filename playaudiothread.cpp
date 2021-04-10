@@ -4,6 +4,21 @@
 #include <SDL2/SDL.h>
 #include <QFile>
 
+/*
+SDL 播放音频有2种模式:
+Push(推)：【程序】主动传数据给【音频设备】
+Pull(拉)：【音频设备】主动向【程序】拉取数据
+
+ffmpeg -i xxx.mp3 -f s16le -ar 44100 -ac 2 -acodec pcm_s16le pcm16k.pcm ==>把 mp3 转为 pcm
+ffplay -ar 44100 -ac 2 -f s16le pcm16k.pcm ==>终端播放 pcm
+
+ffmpeg：强项编解码
+SDL2：音视频播放
+
+注意：凡是被压缩过的数据不可以直接播放，需要先解压
+*/
+
+
 // 采样率
 #define SAMPLE_RATE 44100
 // 采样格式（s16le）
@@ -20,7 +35,7 @@
 #define BUFFER_SIZE (BYTES_PER_SAMPLE * SAMPLES)
 
 // 播放文件路径
-#define FILE_NAME "/Users/jr.lu/Desktop/04_05_12_24_06.pcm"
+#define FILE_NAME "/Users/jr.lu/Desktop/pcm16k.pcm"
 
 PlayAudioThread::PlayAudioThread(QObject *parent) : QThread(parent)
 {
@@ -42,25 +57,30 @@ typedef struct audio_buffer {
     Uint8 *data = nullptr;
 } AudioBuffer;
 
-// userdata：SDL_AudioSpec.userdata
-// stream：音频缓冲区（需要将音频数据填充到这个缓冲区）
-// len：音频缓冲区的大小（SDL_AudioSpec.samples * 每个样本的大小）
+char *bufferData;
+int bufferLen;
+/*
+ * 主拉方式
+ * 等待音频设备回调函数（异步====>回到多次）                                               8(bit)->1个字节(bytes)
+ * userdata：SDL_AudioSpec.userdata                                1024(样本数)*(16位 * 2声道)/8=4096字节
+ * stream：需要往stream填充pcm数据（指向音频缓冲区，大小为 SDL_AudioSpec=>samples * freq * channel)
+ * len：希望填充的大小(最后可能不足那么大) => 1024(样本数)*(16位 * 2声道)/8=4096字节
+*/
 void pull_audio_data(void *userdata, Uint8 * stream,
                                     int len) {
-    // 清空stream
+    // 清空stream (用0去填充缓冲区,大小为len)
     SDL_memset(stream, 0, len);
 
     // 取出缓存数据
-    AudioBuffer *buffer = (AudioBuffer *)userdata;
-    if(buffer->len == 0) return;
+    if(bufferLen == 0) return;
+    qDebug() << "pull_audio_data bufferLen=" << bufferLen;
 
     // 取len、bufferLen的最小值（为了保证数据安全，防止指针越界）
-    buffer->pullLen = (len > buffer->pullLen) ? buffer->pullLen : len;
-
-    // 填充数据
-    SDL_MixAudio(stream, buffer->data, buffer->pullLen, SDL_MIX_MAXVOLUME);
-    buffer->data += buffer->pullLen;
-    buffer->len -= buffer->pullLen;
+    len = (len > bufferLen) ? bufferLen : len;
+    // 给音频设备-填充数据，SDL_MIX_MAXVOLUME 软件最大音量不是硬件的
+    SDL_MixAudio(stream, (Uint8 *)bufferData, len, SDL_MIX_MAXVOLUME);
+    bufferData += len;// 指针往下移动 len (文件读取数据大于缓冲区一次能填充数据量时 eg: data[BUFFER_SIZE * 4]，缓冲区大小为BUFFER_SIZE时, 需要4次填充到缓冲区)
+    bufferLen -= len; // SDL_MixAudio 中填充多少减去多少 被消耗数据
 }
 
 void PlayAudioThread::run()
@@ -101,31 +121,33 @@ void PlayAudioThread::run()
        SDL_CloseAudio(); //关闭音频设备
        SDL_Quit(); //清除子系统
        return;
+    } else {
+       qDebug() << "文件打开成功" << FILE_NAME;
     }
 
     // 开始播放 (0->unpause)
-    SDL_PauseAudio(0);
-    // 存放文件数据
-    Uint8 data[BUFFER_SIZE];
-    while (!isInterruptionRequested()) {
-        // 只要从文件中读取的音频数据，还没有填充完毕，就跳过
-        if(buffer.len > 0) continue;
+    SDL_PauseAudio(0);// 开启这句就会不断走 pull_audio_data 函数
 
-        buffer.len = file.read((char *)data, BUFFER_SIZE);
+    // 存放文件数据
+    char data[BUFFER_SIZE];
+    while (!isInterruptionRequested()) {
+        bufferLen = file.read(data, BUFFER_SIZE);
 
         // 文件数据已经读完
-        if(buffer.len <= 0) {
-            //剩余的样本数
-            int samples = buffer.pullLen / BYTES_PER_SAMPLE;
-            int ms = samples * 1000 / SAMPLE_RATE;
-            SDL_Delay(ms); //延时多少 ms
+        if(bufferLen <= 0) {
+            qDebug() << "数据读完了";
             break;
         }
+        qDebug()<< "bufferData 获取到数据";
 
-        // 读取到了文件数据
-        buffer.data = data;
+        // 读取到了文件数据（指向数组首元素）
+        bufferData = data;
+        while (bufferLen > 0) { // 等待 pull_audio_data 中 SDL_MixAudio 填充完毕
+            qDebug() << "SDL_Delay";
+            SDL_Delay(1);
+        }
     }
-
+    qDebug() << "isInterruptionRequested = true";
     // 关闭文件
     file.close();
     // 关闭音频设备

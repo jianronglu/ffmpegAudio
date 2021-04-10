@@ -37,7 +37,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>打开音频</string>
+     <string>播放音乐</string>
     </property>
    </widget>
   </widget>
