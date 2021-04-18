@@ -11,7 +11,7 @@ extern "C" {
 int main(int argc, char *argv[])
 {
     avdevice_register_all();
-
+    qDebug() << "avdevice_register_all";
     SDL_version v;
     SDL_VERSION(&v);
 

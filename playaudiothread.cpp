@@ -32,7 +32,7 @@ ffplay = ffmpeg：强项编解码 + SDL2：音视频播放
 // 音频缓冲区的样本数量
 #define SAMPLES 1024
 // 每个样本占用多少个字节
-#define BYTES_PER_SAMPLE ((SAMPLE_SIZE * CHANNELS) / 8)
+#define BYTES_PER_SAMPLE ((SAMPLE_SIZE * CHANNELS) >> 3) // 除8 => >>3
 // 文件缓冲区的大小
 #define BUFFER_SIZE (BYTES_PER_SAMPLE * SAMPLES)
 
@@ -147,6 +147,10 @@ void PlayAudioThread::run()
             int ms = samples * 1000 / SAMPLE_RATE; //spec.freq = SAMPLE_RATE ;
             SDL_Delay(ms); //毫秒
             qDebug() << "文件数据读完了，音频设备还有:"<<samples<<"个样本没处理完"<<"还需要等待" << ms << "毫秒";
+            /*
+            *音频设备索要的大小 = 4096 文件中实际读取的大小 = 4096 实际填充给音频设备大小 = 4096
+            *文件数据读完了，音频设备还有: 1024 个样本没处理完 还需要等待 23 毫秒
+            */
             break;
         }
         qDebug()<< "文件获取到数据大小 ="<< buffer.len;

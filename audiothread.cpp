@@ -11,6 +11,7 @@ extern "C" {
 #include <libavdevice/avdevice.h>
 #include <libavformat/avformat.h>
 #include <libavutil/avutil.h>
+#include <libavcodec/avcodec.h>
 }
 
 
@@ -47,8 +48,10 @@ void showFormatContext(AVFormatContext *ctx) {
     qDebug() << "采样率:" << params->sample_rate;
     qDebug() << "声道数:" << params->channels;
     // 采样格式(参考枚举类型AVSampleFormat)
-    qDebug() << "格式:" << params->format;
-    qDebug() << "一个样本的单声道大小" << av_get_bytes_per_sample((AVSampleFormat)params->format);
+    //qDebug() << "格式 (format):" << params->format; // -1  mac 上不行
+    //qDebug() << "一个样本的单声道大小 (format): " << ( av_get_bytes_per_sample((AVSampleFormat)params->format) << 3);
+    qDebug() << "格式二 (codec_id)："<< params->codec_id;
+    qDebug() <<"一个样本的单声道大小 (codec_id): " << av_get_bits_per_sample(params->codec_id);
 }
 
 void AudioThread::run(){
@@ -70,7 +73,7 @@ void AudioThread::run(){
     if (ret < 0) {
         char errbuf[1024] = {0};
         av_strerror(ret, errbuf, sizeof (errbuf));
-        qDebug() << "ret =" << ret << errbuf;
+        qDebug() << "设备打开失败 ret =" << ret << errbuf;
     } else {
          qDebug() << DEVICE_NAME << "打开设备成功";
     }
@@ -91,6 +94,8 @@ void AudioThread::run(){
         // 关闭设备
         avformat_close_input(&ctx);
         return;
+    } else {
+        qDebug() << "文件打开成功！";
     }
 
     // 数据包
@@ -100,15 +105,15 @@ void AudioThread::run(){
         ret = av_read_frame(ctx, &pkt);
         if (ret == 0) {
             // 写入数据
-            qDebug() << "写入数据";
+            qDebug() << "采集数据-成功并写入数据";
             file.write((const char *)pkt.data, pkt.size);
         } else if (ret == AVERROR(EAGAIN)) {//临时资源不可用
-            qDebug() << "临时资源不可用ret："<< ret;
+            qDebug() << "采集数据-临时资源不可用ret："<< ret;
             continue;
         } else {
             char errbuf[1024] = {0};
             av_strerror(ret, errbuf, sizeof (errbuf));
-            qDebug() << "av_read_frame error" << errbuf << ret;
+            qDebug() << "采集数据-错误：" << errbuf << ret;
             break;
         }
     }

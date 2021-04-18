@@ -50,7 +50,7 @@ mac {
 # ADD FFMPEG PATH
 INCLUDEPATH += $${FFMPEGHOME}/include
 
-LIBS += -L $${FFMPEGHOME}/lib \  # -L：去什么路径查找
+LIBS += -L$${FFMPEGHOME}/lib \  # -L：去什么路径查找
     -lavdevice \ # -l 连接xxx库
     -lavformat \
     -lavutil \
