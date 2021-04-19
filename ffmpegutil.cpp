@@ -8,10 +8,6 @@ FFMPEGUtil::FFMPEGUtil(QObject *parent) : QObject(parent)
 }
 
 void FFMPEGUtil::pcm_2_wav(WAVHeader &header, const char *scr_pcm_path, const char *dst_wav_path) {
-
-    header.blockAlign = header.bitsPerSample * header.numChannels >> 3;
-    header.byteRate = header.sampleRate * header.blockAlign;
-
     QFile scr_pcm_file(scr_pcm_path);// 源文件file
 
     if (!scr_pcm_file.open(QFile::ReadOnly)) {
@@ -19,9 +15,18 @@ void FFMPEGUtil::pcm_2_wav(WAVHeader &header, const char *scr_pcm_path, const ch
         return;
     }
 
+    header.blockAlign = header.bitsPerSample * header.numChannels >> 3; // 16 * 2 / 8 = 4
+    qDebug()<< "blockAlign ="<<header.blockAlign;
+
+    header.byteRate = header.sampleRate * header.blockAlign;    // 44100 * 4
+    qDebug()<< "byteRate ="<<header.byteRate;
+
     // 获取 dataChunkData 大小，即pcm文件大小
     header.dataChunkDataSize = scr_pcm_file.size();
+    qDebug()<< "dataChunkDataSize ="<<header.dataChunkDataSize;
+
     header.riffChunkSize = header.dataChunkDataSize + sizeof (WAVHeader) - 8;
+    qDebug()<< "riffChunkSize ="<<header.riffChunkSize;
 
     QFile dst_wav_file(dst_wav_path); //目标文件
 
@@ -39,7 +44,6 @@ void FFMPEGUtil::pcm_2_wav(WAVHeader &header, const char *scr_pcm_path, const ch
     char buf[1024];
     int size;
     while ((size = scr_pcm_file.read(buf, sizeof (buf))) > 0) {
-        qDebug()<< "写入 data size:"<< size;
         dst_wav_file.write(buf, size);
     }
     // 关闭文件

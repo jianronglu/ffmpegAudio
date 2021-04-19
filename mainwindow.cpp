@@ -57,14 +57,15 @@ void MainWindow::on_pcm2wavBtn_clicked()
     if(!_pcm2wavThread) {
         _pcm2wavThread = new PCM2WAVThread(this);
         _pcm2wavThread->start();
-
         connect(_pcm2wavThread, &PCM2WAVThread::finished, [this](){
            _pcm2wavThread = nullptr;
+           ui->pcm2wavBtn->setText("格式转换完成");
            qDebug() << "格式转换完成";
         });
-        qDebug()<< "开始转格式";
+        ui->pcm2wavBtn->setText("取消");
     } else {
         _pcm2wavThread->requestInterruption();
         qDebug() << "PCM2WAVThread end";
+        ui->pcm2wavBtn->setText("pcm2wav");
     }
 }
