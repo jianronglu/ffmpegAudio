@@ -40,6 +40,19 @@
      <string>播放音乐</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="pcm2wavBtn">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>230</y>
+      <width>113</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>pcm2wav</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

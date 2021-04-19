@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QDebug>
-AudioThread *thread = nullptr;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -51,4 +50,21 @@ void MainWindow::on_playAudioBtn_clicked()
         qDebug()<< "PlayAudioThread end";
     }
 
+}
+
+void MainWindow::on_pcm2wavBtn_clicked()
+{
+    if(!_pcm2wavThread) {
+        _pcm2wavThread = new PCM2WAVThread(this);
+        _pcm2wavThread->start();
+
+        connect(_pcm2wavThread, &PCM2WAVThread::finished, [this](){
+           _pcm2wavThread = nullptr;
+           qDebug() << "格式转换完成";
+        });
+        qDebug()<< "开始转格式";
+    } else {
+        _pcm2wavThread->requestInterruption();
+        qDebug() << "PCM2WAVThread end";
+    }
 }

@@ -110,7 +110,7 @@ Devices:
 ![](Source/播放pcm音频.png)
 
 ## 三、WAV文件格式
-- MJ理解的格式
+- MJ整理的格式（参考）
 
 ![](Source/WAV文件格式MJ.png)
 
@@ -118,12 +118,13 @@ Devices:
 
 ![](Source/WAV文件格式1.png)
 
+- 于是乎推导出头文件格式 `struct`
 ```cpp
 #define AUDIO_FORMAT_PCM 1
 #define AUDIO_FORMAT_FLOAT 3
 
 // WAV文件头（44字节）
-typedef struct {
+typedef struct W {
     // RIFF chunk的id
     uint8_t riffChunkId[4] = {'R', 'I', 'F', 'F'};
     // RIFF chunk的data大小，即文件总长度减去8字节

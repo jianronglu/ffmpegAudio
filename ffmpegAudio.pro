@@ -13,12 +13,14 @@ SOURCES += \
     ffmpegutil.cpp \
     main.cpp \
     mainwindow.cpp \
+    pcm2wavthread.cpp \
     playaudiothread.cpp
 
 HEADERS += \
     audiothread.h \
     ffmpegutil.h \
     mainwindow.h \
+    pcm2wavthread.h \
     playaudiothread.h
 
 FORMS += \

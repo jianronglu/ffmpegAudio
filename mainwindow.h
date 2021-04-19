@@ -2,8 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <audiothread.h>
-#include <playaudiothread.h>
+#include "audiothread.h"
+#include "playaudiothread.h"
+#include "pcm2wavthread.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -22,9 +23,12 @@ private slots:
 
     void on_playAudioBtn_clicked();
 
+    void on_pcm2wavBtn_clicked();
+
 private:
     Ui::MainWindow *ui;
     AudioThread *_audioThread = nullptr;
     PlayAudioThread *_playAudioThread = nullptr;
+    PCM2WAVThread *_pcm2wavThread = nullptr;
 };
 #endif // MAINWINDOW_H
