@@ -1,21 +1,6 @@
 
 ## 一、子线程记录音频
 
-- 1、找到输入格式 `AVInputFormat：av_find_input_format("avfoundation")` 
-
-- 2、获取上下文：`AVFormatContext *ctx = nullptr`;
-- 3、打开设备：`avformat_open_input(&ctx, DEVICE_NAME, fmt, nullptr)`;
-- 4、QFile 创建文件 `QFile file(filename); 只写模式打开文件：file.open(QFile::WriteOnly)`
-- 5、定义数据包 `AVPacket pkt`; 读取数据 `av_read_frame(ctx, &pkt)`;
-- 6、写入数据 `file.write((const char *)pkt.data, pkt.size)`;
-- 7、关闭文件：`file.close()`; 关闭设备：`avformat_close_input(&ctx)`;
-```cpp
-extern "C" { //需要的库 (c语言库不能直接在c++中使用需要 extern "C")
-#include <libavdevice/avdevice.h>
-#include <libavformat/avformat.h>
-#include <libavutil/avutil.h>
-}
-```
 #### 1、 Mac 记录音视频需要申请权限（创建 Info.plist， debug 模式测试）指定路径 QMAKE_INFO_PLIST = xxx/Info.plist
 ```Objc
 <?xml version="1.0" encoding="UTF-8"?>
@@ -107,5 +92,5 @@ Devices:
 - Mac： /usr/local/Cellar/sdl2（brew install ffmpeg 会安装 SDL2）
 - Windows： 使用MinGW编译器，需要自己下SDL2
 
-#### 3、
+#### 3、pull 图
 ![](Source/播放pcm音频.png)
