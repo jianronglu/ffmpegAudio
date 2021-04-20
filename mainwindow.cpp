@@ -66,6 +66,5 @@ void MainWindow::on_pcm2wavBtn_clicked()
     } else {
         _pcm2wavThread->requestInterruption();
         qDebug() << "PCM2WAVThread end";
-        ui->pcm2wavBtn->setText("pcm2wav");
     }
 }

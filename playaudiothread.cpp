@@ -24,7 +24,11 @@ ffplay = ffmpeg：强项编解码 + SDL2：音视频播放
 // 采样率
 #define SAMPLE_RATE 44100
 // 采样格式（s16le）
+#ifdef Q_OS_MAC
+#define SAMPLE_FORMAT AUDIO_F32LSB
+#else
 #define SAMPLE_FORMAT AUDIO_S16LSB
+#endif
 // 声道数
 #define CHANNELS 2
 // 采样大小
@@ -37,7 +41,7 @@ ffplay = ffmpeg：强项编解码 + SDL2：音视频播放
 #define BUFFER_SIZE (BYTES_PER_SAMPLE * SAMPLES)
 
 // 播放文件路径
-#define FILE_NAME "/Users/jr.lu/Desktop/pcm16k.pcm"
+#define FILE_NAME "/Users/lu/Desktop/04_20_10_53_15.pcm"
 
 PlayAudioThread::PlayAudioThread(QObject *parent) : QThread(parent)
 {

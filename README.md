@@ -84,7 +84,8 @@ Devices:
 
 ~ ffmpeg -i xxx.mp3 -f s16le -ar 44100 -ac 2 -acodec pcm_s16le pcm16k.pcm # 把 mp3 转为 pcm
 
-~ ffplay -ar 4410 -ac 2 -f s16le Desktop/04_05_12_24_06.pcm # 播放 PCM 得输入参数
+~ ffplay -ar 44100 -ac 2 -f s16le Desktop/04_05_12_24_06.pcm # 播放 PCM 得输入参数 (s16le windows)
+~ ffplay -ar 44100 -ac 2 -f f32le 04_20_10_53_15.pcm # 播放 Mac 录音  (f32le 录音)
 
 ~ ffmpeg -ar 44100 -ac 2 -f s16le -i out.pcm out.wav # PCM 转成 WAV （比PCM多78个字节）
 # 需要注意的是：上面命令生成的WAV文件头有78字节。对比44字节的文件头，它多增加了一个34字节大小的LIST chunk。

@@ -2,8 +2,8 @@
 #include <QDebug>
 #include <QFile>
 #include <QDateTime>
-
-// ffplay -ar 44100 -ac 2 -f s16le Desktop/04_06_16_11_11.pcm  测试读 .pcm 文件
+#include "ffmpegutil.h"
+// ffplay -ar 44100 -ac 2 -f f32le 04_20_10_53_15.pcm  测试读 .pcm 文件
 
 // 查看Mac 设备信息：关于本机->系统报告->音频->设备
 
@@ -18,8 +18,8 @@ extern "C" {
 #ifdef Q_OS_MAC
     #define FMT_NAME "avfoundation"
     #define DEVICE_NAME ":0"
-    #define FILE_NAME "/Users/jr.lu/Desktop/"
-//    #define FILE_NAME "/Users/lu/Desktop/"
+//    #define FILE_NAME "/Users/jr.lu/Desktop/"
+    #define FILE_NAME "/Users/lu/Desktop/"
 #else
     #define FMT_NAME "dshow"
     #define DEVICE_NAME "audio=xxx"
@@ -71,7 +71,7 @@ void AudioThread::run(){
     int ret = avformat_open_input(&ctx, DEVICE_NAME, fmt, nullptr); // 需要申请权限
 
     if (ret < 0) {
-        char errbuf[1024] = {0};
+        char errbuf[1024];
         av_strerror(ret, errbuf, sizeof (errbuf));
         qDebug() << "设备打开失败 ret =" << ret << errbuf;
     } else {
@@ -82,14 +82,16 @@ void AudioThread::run(){
     showFormatContext(ctx);
 
     // 文件名
-    QString filename = FILE_NAME;
-    filename += QDateTime::currentDateTime().toString("MM_dd_HH_mm_ss");
-    filename += ".pcm";
+    QString scr_pcm_filename = FILE_NAME;
+    scr_pcm_filename += QDateTime::currentDateTime().toString("MM_dd_HH_mm_ss");
+    QString dst_wav_filename = scr_pcm_filename;
+    dst_wav_filename += ".wav";
+    scr_pcm_filename += ".pcm";
     // 文件操作
-    QFile file(filename);
+    QFile file(scr_pcm_filename);
     //WriteOnly：只写模式。如果文件不存在，就创建文件；如果文件存在，就会清空文件内容
     if(!file.open(QFile::WriteOnly)) {
-        qDebug() << "文件打开失败" << filename;
+        qDebug() << "文件打开失败" << scr_pcm_filename;
 
         // 关闭设备
         avformat_close_input(&ctx);
@@ -111,7 +113,7 @@ void AudioThread::run(){
             qDebug() << "采集数据-临时资源不可用ret："<< ret;
             continue;
         } else {
-            char errbuf[1024] = {0};
+            char errbuf[1024];
             av_strerror(ret, errbuf, sizeof (errbuf));
             qDebug() << "采集数据-错误：" << errbuf << ret;
             break;
@@ -120,6 +122,25 @@ void AudioThread::run(){
 
     // 关闭文件
     file.close();
+
+    // pcm to wav start
+    // 获取输入流
+    AVStream *stream = ctx->streams[0];
+    // 获取音频输入参数
+    AVCodecParameters *params = stream->codecpar;
+
+    WAVHeader header;
+    header.sampleRate = params->sample_rate;
+    header.bitsPerSample = av_get_bits_per_sample(params->codec_id);
+    header.numChannels = params->channels;
+    if (params->codec_id >= AV_CODEC_ID_PCM_F32BE) {
+        header.audioFormat = AUDIO_FORMAT_FLOAT;
+    }
+
+    FFMPEGUtil::pcm_2_wav(header,
+                          scr_pcm_filename.toUtf8().data(),
+                          dst_wav_filename.toUtf8().data());
+    // pcm to wav end
 
     // 关闭设备
     avformat_close_input(&ctx);
