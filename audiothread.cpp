@@ -83,7 +83,7 @@ void AudioThread::run(){
 
     // 文件名
     QString scr_pcm_filename = FILE_NAME;
-    scr_pcm_filename += QDateTime::currentDateTime().toString("MM_dd_HH_mm_ss");
+    scr_pcm_filename += QDateTime::currentDateTime().toString("MMddHHmmss");
     QString dst_wav_filename = scr_pcm_filename;
     dst_wav_filename += ".wav";
     scr_pcm_filename += ".pcm";
@@ -96,8 +96,6 @@ void AudioThread::run(){
         // 关闭设备
         avformat_close_input(&ctx);
         return;
-    } else {
-        qDebug() << "文件打开成功！";
     }
 
     // 数据包
@@ -107,10 +105,8 @@ void AudioThread::run(){
         ret = av_read_frame(ctx, &pkt);
         if (ret == 0) {
             // 写入数据
-            qDebug() << "采集数据-成功并写入数据";
             file.write((const char *)pkt.data, pkt.size);
         } else if (ret == AVERROR(EAGAIN)) {//临时资源不可用
-            qDebug() << "采集数据-临时资源不可用ret："<< ret;
             continue;
         } else {
             char errbuf[1024];

@@ -26,6 +26,7 @@ void FFMPEGUtil::pcm_2_wav(WAVHeader &header, const char *scr_pcm_path, const ch
                            - sizeof (header.riffChunkId)
                            - sizeof (header.riffChunkDataSize);
 
+    qDebug()<< "sizeof (WAVHeader) ="<< sizeof (WAVHeader);
 
     QFile dst_wav_file(dst_wav_path); //目标文件
 
